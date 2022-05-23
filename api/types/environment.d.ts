@@ -8,6 +8,7 @@ declare global {
             DB_PORT: string;
             NODE_DOCKER_PORT: string;
             CLIENT_ORIGIN: string;
+            FORCE_DB_RESET: string;
         }
     }
 }

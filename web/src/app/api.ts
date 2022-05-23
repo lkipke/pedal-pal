@@ -6,5 +6,8 @@ export const test = async () => {
 };
 export const login = async () => {};
 export const uploadData = async () => {};
-export const startSession = async () => {};
-export const endSession = async () => {};
+
+export const createNewSession = async () => {};
+export const getLastSession = async () => {};
+export const getSessionById = async () => {};
+export const getAllSessions = async () => {};
