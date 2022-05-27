@@ -3,7 +3,6 @@ import sequelize from "../sequelize";
 
 class ExerciseData extends Model {
   declare id: string;
-  declare sessionId: string;
   declare timestamp: string;
   declare heartRate: string;
   declare kmph: string;

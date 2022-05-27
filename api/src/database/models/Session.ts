@@ -5,7 +5,6 @@ import ExerciseData from "./ExerciseData";
 class Session extends Model {
   declare id: string;
   declare name: string;
-  declare userId: string;
 }
 
 Session.init(
@@ -33,8 +32,6 @@ Session.init(
 );
 
 Session.hasMany(ExerciseData);
-ExerciseData.belongsTo(Session, {
-  foreignKey: "sessionId",
-});
+ExerciseData.belongsTo(Session);
 
 export default Session;

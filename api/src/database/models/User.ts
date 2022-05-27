@@ -39,8 +39,6 @@ User.init(
 );
 
 User.hasMany(Session);
-Session.belongsTo(User, {
-  foreignKey: "userId",
-});
+Session.belongsTo(User);
 
 export default User;
