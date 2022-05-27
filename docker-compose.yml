@@ -32,7 +32,7 @@ services:
             - DB_PORT=$MYSQL_CONFIG_DOCKER_PORT
             - CLIENT_ORIGIN=$CLIENT_ORIGIN
             - NODE_DOCKER_PORT=$NODE_DOCKER_PORT
-            # use the below for manually resetting the database
+            # uncomment the below for manually resetting the database
             - FORCE_DB_RESET=true
         networks:
             - frontend
