@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import logo from '../logo.svg';
-import { test } from './api';
+import { test } from '../api';
 import './App.css';
 
 type Result = Record<string, string>;

@@ -9,6 +9,7 @@ class ExerciseData extends Model {
   declare rpm: string;
   declare powerWatts: string;
   declare calories: string;
+  declare SessionId: string;
 }
 
 ExerciseData.init(
@@ -19,14 +20,6 @@ ExerciseData.init(
       allowNull: false,
       primaryKey: true,
     },
-    // sessionId: {
-    //   type: DataTypes.TEXT,
-    //   allowNull: false,
-    //   references: {
-    //     model: "Sessions",
-    //     key: "id",
-    //   },
-    // },
     timestamp: {
         type: DataTypes.DATE,
         allowNull: false

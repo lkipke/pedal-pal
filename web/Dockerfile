@@ -9,10 +9,6 @@ RUN yarn install
 
 COPY . .
 
-# inject the api url into the app's runtime
-ARG API_BASE_URL
-ENV API_BASE_URL=$API_BASE_URL
-
 # RUN yarn build
 
 # # Put the API behind nginx

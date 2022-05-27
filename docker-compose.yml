@@ -33,24 +33,23 @@ services:
             - CLIENT_ORIGIN=$CLIENT_ORIGIN
             - NODE_DOCKER_PORT=$NODE_DOCKER_PORT
             # uncomment the below for manually resetting the database
-            - FORCE_DB_RESET=true
+            # - FORCE_DB_RESET=true
         networks:
             - frontend
             - backend
 
-    # web:
-    #     build:
-    #         context: ./web
-    #         args:
-    #             - API_BASE_URL=$CLIENT_API_BASE_URL
-    #     ports:
-    #         - '3000:3000'
-    #     volumes:
-    #         - ./web:/usr/src/app
-    #     depends_on:
-    #         - api
-    #     networks:
-    #         - frontend
+    web:
+        build: ./web
+        environment:
+            - REACT_APP_API_BASE_URL=$CLIENT_API_BASE_URL
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./web:/usr/src/app
+        depends_on:
+            - api
+        networks:
+            - frontend
 
 volumes:
     db:

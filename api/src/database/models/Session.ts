@@ -5,6 +5,7 @@ import ExerciseData from "./ExerciseData";
 class Session extends Model {
   declare id: string;
   declare name: string;
+  declare UserId: string;
 }
 
 Session.init(
@@ -19,14 +20,6 @@ Session.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    // userId: {
-    //   type: DataTypes.TEXT,
-    //   allowNull: false,
-    //   references: {
-    //     model: "Users",
-    //     key: "id",
-    //   },
-    // },
   },
   { sequelize }
 );
