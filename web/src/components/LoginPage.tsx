@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useContext, useState } from "react";
+import React, { ChangeEvent, KeyboardEventHandler, useCallback, useContext, useState } from "react";
 import { Button, Pane, Text, TextInput } from "evergreen-ui";
 import { login } from "../api";
 import { UserContext } from "../providers/UserContext";
@@ -24,7 +24,13 @@ const LoginPage = () => {
     }
 
     setIsLoading(false);
-  }, [username, password]);
+  }, [username, password, setUser]);
+
+  const onKeyUp: KeyboardEventHandler<HTMLDivElement> = useCallback((event) => {
+    if (event.key === "Enter") {
+      onLogInClicked();
+    }
+  }, [onLogInClicked]);
 
   return (
     <Pane
@@ -33,14 +39,17 @@ const LoginPage = () => {
       alignItems='center'
       flexDirection='column'
       height="500px"
+      onKeyUp={onKeyUp}
     >
       <TextInput
         placeholder='username'
+        required={true}
         onChange={(e: OnChangeEvent) => setUsername(e.target.value)}
       />
       <TextInput
         placeholder='password'
         type="password"
+        required={true}
         onChange={(e: OnChangeEvent) => setPassword(e.target.value)}
         marginTop="5px"
       />

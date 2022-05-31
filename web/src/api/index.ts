@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer';
-import { getAuthToken, storeAuthToken } from './storage';
 import { User } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL!;
@@ -21,14 +20,8 @@ async function fetchWithAuth(
   path: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  let token = getAuthToken();
-  let headers = token
-    ? { ...options.headers, 'X-Pedal-Pal-Auth': token }
-    : options.headers;
-
   return fetch(path, {
     ...options,
-    headers,
     credentials: "include"
   });
 }
