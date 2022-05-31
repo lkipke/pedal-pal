@@ -1,5 +1,6 @@
-import { Buffer } from "buffer";
-import { User } from "./types";
+import { Buffer } from 'buffer';
+import { getAuthToken, storeAuthToken } from './storage';
+import { User } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL!;
 
@@ -16,18 +17,33 @@ export interface LoginResponseFailure {
 
 export type LoginResponse = LoginResponseSuccess | LoginResponseFailure;
 
+async function fetchWithAuth(
+  path: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  let token = getAuthToken();
+  let headers = token
+    ? { ...options.headers, 'X-Pedal-Pal-Auth': token }
+    : options.headers;
+
+  return fetch(path, {
+    ...options,
+    headers,
+    credentials: "include"
+  });
+}
+
 export const login = async (
   username: string,
   password: string
 ): Promise<LoginResponse> => {
-  const authString = Buffer.from(username + ":" + password).toString("base64");
-  console.log("auth string", authString);
+  const authString = Buffer.from(username + ':' + password).toString('base64');
 
-  const response = await fetch(`${API_BASE_URL}/login`, {
-    method: "POST",
+  const response = await fetchWithAuth(`${API_BASE_URL}/login`, {
+    method: 'POST',
     headers: {
-      Authorization: "Basic " + authString,
-    },
+      Authorization: 'Basic ' + authString,
+    }
   });
 
   if (!response.ok) {
@@ -38,15 +54,15 @@ export const login = async (
     };
   }
 
-  let user: User = await response.json();
+  let userInfo: User = await response.json();
   return {
     success: true,
-    user,
+    user: userInfo
   };
 };
 
 export const getUserFromStoredCredentials = async () => {
-  const response = await fetch(`${API_BASE_URL}/user`);
+  const response = await fetchWithAuth(`${API_BASE_URL}/user`);
   if (!response.ok) {
     return null;
   }

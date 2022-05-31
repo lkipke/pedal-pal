@@ -39,6 +39,9 @@ User.init(
     authToken: {
       type: DataTypes.STRING,
     },
+    // authTokenExpiry: {
+    //   type: DataTypes.DATE,
+    // },
   },
   { sequelize }
 );

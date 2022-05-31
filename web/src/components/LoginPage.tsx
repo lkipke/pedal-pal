@@ -32,6 +32,7 @@ const LoginPage = () => {
       justifyContent='center'
       alignItems='center'
       flexDirection='column'
+      height="500px"
     >
       <TextInput
         placeholder='username'
@@ -39,10 +40,11 @@ const LoginPage = () => {
       />
       <TextInput
         placeholder='password'
-        hidden={true}
+        type="password"
         onChange={(e: OnChangeEvent) => setPassword(e.target.value)}
+        marginTop="5px"
       />
-      <Button onClick={onLogInClicked} disabled={isLoading}>Log in</Button>
+      <Button onClick={onLogInClicked} disabled={isLoading} marginTop="15px">Log in</Button>
       {errorMessage && <Text color="red">{errorMessage}</Text>}
     </Pane>
   );

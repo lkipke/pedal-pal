@@ -18,6 +18,7 @@ const createServer = () => {
   const allowList: string[] = JSON.parse(process.env.CLIENT_ORIGIN_ALLOW_LIST);
   const corsOptions: cors.CorsOptions = {
     origin: allowList,
+    credentials: true
   };
 
   const app = express();

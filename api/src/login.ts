@@ -33,9 +33,11 @@ router.post('/', async (req, res, next) => {
 
   let authToken = await updateAuthToken(username);
   res.cookie('AuthToken', authToken, {
-    maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    maxAge: 1000 * 60 * 60 * 24 * 60, // 60 days
     httpOnly: true,
     signed: true,
+    secure: true,
+    sameSite: 'none',
   });
 
   return res.status(200).json(user.toJSON());

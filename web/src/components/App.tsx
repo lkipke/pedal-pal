@@ -4,7 +4,7 @@ import LoginPage from './LoginPage';
 import MetricsPage from './MetricsPage';
 
 function App() {
-  let user = useContext(UserContext);
+  let { user } = useContext(UserContext);
   return user ? <MetricsPage user={user} /> : <LoginPage />;
 }
 
