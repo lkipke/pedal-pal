@@ -1,6 +1,6 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../sequelize";
-import Session from "./Session";
+import { DataTypes, Model } from 'sequelize';
+import sequelize from '../sequelize';
+import Session from './Session';
 
 class User extends Model {
   declare id: string;
@@ -8,6 +8,7 @@ class User extends Model {
   declare lastName: string;
   declare username: string;
   declare password: string;
+  declare authToken: string;
 }
 
 User.init(
@@ -19,20 +20,24 @@ User.init(
       primaryKey: true,
     },
     firstName: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     lastName: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     username: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING(64),
       allowNull: false,
+      unique: true,
     },
     password: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
+    },
+    authToken: {
+      type: DataTypes.STRING,
     },
   },
   { sequelize }

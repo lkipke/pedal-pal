@@ -1,36 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import logo from '../logo.svg';
-import { test } from '../api';
-import './App.css';
-
-type Result = Record<string, string>;
+import React, { useContext } from 'react';
+import { UserContext } from '../providers/UserContext';
+import LoginPage from './LoginPage';
+import MetricsPage from './MetricsPage';
 
 function App() {
-    let [result, setResult] = useState('');
-
-    useEffect(() => {
-        test().then((response) => setResult(response));
-    }, []);
-
-    return (
-        <div className='App'>
-            <header className='App-header'>
-                <img src={logo} className='App-logo' alt='logo' />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <p>result: {JSON.stringify(result)}</p>
-                <a
-                    className='App-link'
-                    href='https://reactjs.org'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+  let user = useContext(UserContext);
+  return user ? <MetricsPage user={user} /> : <LoginPage />;
 }
 
 export default App;

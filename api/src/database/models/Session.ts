@@ -1,6 +1,6 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../sequelize";
-import ExerciseData from "./ExerciseData";
+import { DataTypes, Model } from 'sequelize';
+import sequelize from '../sequelize';
+import ExerciseData from './ExerciseData';
 
 class Session extends Model {
   declare id: string;
@@ -17,7 +17,7 @@ Session.init(
       primaryKey: true,
     },
     name: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },
