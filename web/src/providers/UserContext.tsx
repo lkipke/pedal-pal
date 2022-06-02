@@ -1,26 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { getUserFromStoredCredentials } from '../api';
 import { User } from '../api/types';
 
 interface Context {
   user?: User;
   setUser(newUser: User): void;
+  refreshUser(): void;
 }
 
-export const UserContext = React.createContext<Context>({ setUser: () => {} });
+export const UserContext = React.createContext<Context>({
+  setUser: () => {},
+  refreshUser: () => {},
+});
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
   let [user, setUser] = useState<User>();
 
+  const refreshUser = useCallback(async () => {
+    let userResponse = await getUserFromStoredCredentials();
+    setUser(userResponse);
+  }, [user]);
+
   useEffect(() => {
-    getUserFromStoredCredentials().then((userResponse) => {
-      if (userResponse) {
-        setUser(userResponse);
-      }
-    });
+    refreshUser();
   }, []);
 
-  return <UserContext.Provider value={{user, setUser}}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={{ user, setUser, refreshUser }}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
 export default UserProvider;

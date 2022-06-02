@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 const router = Router();
-router.use('/', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   if (!req.user) {
     return res.sendStatus(401);
   } else {

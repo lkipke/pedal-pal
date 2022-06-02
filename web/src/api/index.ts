@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
-import { User } from './types';
+import merge from 'lodash.merge';
+import { Session, User } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL!;
 
@@ -20,10 +21,18 @@ async function fetchWithAuth(
   path: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  return fetch(path, {
-    ...options,
-    credentials: "include"
-  });
+  const baseOptions: RequestInit = {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  if (options.method === 'GET') {
+    baseOptions.headers = {};
+  }
+
+  return fetch(path, merge(baseOptions, options));
 }
 
 export const login = async (
@@ -36,7 +45,7 @@ export const login = async (
     method: 'POST',
     headers: {
       Authorization: 'Basic ' + authString,
-    }
+    },
   });
 
   if (!response.ok) {
@@ -50,22 +59,50 @@ export const login = async (
   let userInfo: User = await response.json();
   return {
     success: true,
-    user: userInfo
+    user: userInfo,
   };
+};
+
+export const logout = async () => {
+  await fetchWithAuth(`${API_BASE_URL}/logout`, {
+    method: 'POST',
+  });
 };
 
 export const getUserFromStoredCredentials = async () => {
   const response = await fetchWithAuth(`${API_BASE_URL}/user`);
   if (!response.ok) {
-    return null;
+    return undefined;
   }
 
   return (await response.json()) as User;
 };
 
-export const uploadData = async () => {};
+export const getLastSession = async (): Promise<Session | null> => {
+  const response = await fetchWithAuth(`${API_BASE_URL}/session/most_recent`);
+  return response.ok ? await response.json() : null;
+};
 
-export const createNewSession = async () => {};
-export const getLastSession = async () => {};
+export const createSession = async (sessionName: string) => {
+  const response = await fetchWithAuth(`${API_BASE_URL}/session/create`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: sessionName,
+    }),
+  });
+  return response.ok ? await response.json() : null;
+};
+
+export const renameSession = async (sessionName: string) => {
+  const response = await fetchWithAuth(`${API_BASE_URL}/session/create`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: sessionName,
+    }),
+  });
+  return response.ok ? await response.json() : null;
+};
+
+export const uploadData = async () => {};
 export const getSessionById = async () => {};
 export const getAllSessions = async () => {};

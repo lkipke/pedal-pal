@@ -10,3 +10,8 @@ export interface User extends BaseModel {
   username: string;
   password: string;
 }
+
+export interface Session extends BaseModel {
+  id: string;
+  name: string;
+}

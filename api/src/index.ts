@@ -4,7 +4,9 @@ import cookieParser from 'cookie-parser';
 
 import initDatabase from './database/init';
 import login from './login';
+import logout from './logout';
 import user from './user';
+import session from './session';
 import withAuth from './withAuth';
 
 initDatabase().then(() => {
@@ -18,16 +20,19 @@ const createServer = () => {
   const allowList: string[] = JSON.parse(process.env.CLIENT_ORIGIN_ALLOW_LIST);
   const corsOptions: cors.CorsOptions = {
     origin: allowList,
-    credentials: true
+    credentials: true,
   };
 
   const app = express();
   app.use(cookieParser(process.env.NODE_COOKIE_SECRET));
   app.use(cors(corsOptions));
+  app.use(express.json());
   app.use(withAuth());
 
   app.use('/api/login', login);
+  app.use('/api/logout', logout);
   app.use('/api/user', user);
+  app.use('/api/session', session);
 
   app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!');
