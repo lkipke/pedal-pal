@@ -80,7 +80,11 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           setCurrentSession={setCurrentSession}
           currentSessionName={currentSession?.name}
         />
-        <Metric />
+        <Pane marginTop={50} display='flex' flexWrap="wrap">
+          <Metric />
+          <Metric />
+          <Metric />
+        </Pane>
       </Pane>
     </>
   );
