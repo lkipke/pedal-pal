@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import initDatabase from './database/init';
 import login from './login';
 import logout from './logout';
+import metric from './metric';
 import user from './user';
 import session from './session';
 import withAuth from './withAuth';
@@ -33,6 +34,7 @@ const createServer = () => {
   app.use('/api/logout', logout);
   app.use('/api/user', user);
   app.use('/api/session', session);
+  app.use('/api/metric', metric);
 
   app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!');

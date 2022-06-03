@@ -46,11 +46,16 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
     useState<boolean>(false);
   const [dataSourceName, setDataSourceName] = useState<string>('');
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const { bluetoothData, onNewDataReceived } = useBluetoothData();
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(isRecording);
 
   useEffect(() => {
     getLastSession().then(setCurrentSession);
   }, []);
+
+  useEffect(() => {
+    clearData();
+  }, [currentSession]);
 
   const disconnect = useCallback(() => {
     disconnectAll();
@@ -80,6 +85,14 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
         disconnect();
       },
       [setUseFakeData, disconnect]
+    );
+
+  const onToggleRecordClicked: ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (event) => {
+        setIsRecording(event.target.checked);
+      },
+      [setIsRecording]
     );
 
   const onTogglePauseClicked = useCallback(() => {
@@ -121,7 +134,11 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           <Text>Bluetooth</Text>
         </Pane>
         <Pane marginTop={10} display='flex' alignItems='center'>
-          <Switch marginRight={5} checked={true} />
+          <Switch
+            marginRight={5}
+            checked={isRecording}
+            onChange={onToggleRecordClicked}
+          />
           <Text>Record</Text>
         </Pane>
       </Pane>

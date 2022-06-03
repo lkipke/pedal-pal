@@ -3,7 +3,7 @@ import User from './database/models/User';
 
 const router = Router();
 router.post('/', async (req, res, next) => {
-  User.update(
+  await User.update(
     {
       authToken: null,
     },

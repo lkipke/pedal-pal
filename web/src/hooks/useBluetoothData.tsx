@@ -1,21 +1,42 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { BluetoothData, MetricName } from '../api/bluetooth';
 import { DataPoint } from '../components/Metric';
 
 export type BluetoothState = Record<MetricName, DataPoint[]>;
 
-export const useBluetoothData = () => {
-  const [bluetoothData, setBluetoothData] = useState<BluetoothState>({
-    speed: [],
-    cadence: [],
-    power: [],
-    heartRate: [],
-    time: [],
-  });
+const EMPTY_STATE: BluetoothState = {
+  speed: [],
+  cadence: [],
+  power: [],
+  heartRate: [],
+  time: [],
+};
+
+export const useBluetoothData = (isRecording: boolean) => {
+  const [bluetoothData, setBluetoothData] = useState<BluetoothState>(EMPTY_STATE);
+  const [unRecordedData, setUnRecordedData] = useState<BluetoothData[]>([]);
+  const recordingRef = useRef(isRecording);
+
+  const recordToDatabase = useCallback(() => {
+    setUnRecordedData([]);
+  }, [unRecordedData]);
+
+  useEffect(() => {
+    recordingRef.current = isRecording;
+  }, [isRecording, recordingRef, recordToDatabase]);
+
+  useEffect(() => {
+    if (!unRecordedData.length) return;
+
+    let begin = unRecordedData[0].time;
+    let end = unRecordedData[unRecordedData.length - 1].time;
+    if (end - begin > 5) {
+      recordToDatabase();
+    }
+  }, [unRecordedData, recordToDatabase]);
 
   const onNewDataReceived = useCallback(
     (newData: BluetoothData) => {
-      // console.log(newData);
       const { time, speed, cadence, power, heartRate } = newData;
       setBluetoothData((oldData) => ({
         speed: [...oldData.speed, { time, value: speed }],
@@ -24,9 +45,17 @@ export const useBluetoothData = () => {
         heartRate: [...oldData.heartRate, { time, value: heartRate }],
         time: [...oldData.time, { time, value: time }],
       }));
+
+      if (recordingRef.current) {
+        setUnRecordedData((prev) => [...prev, newData]);
+      }
     },
-    [setBluetoothData]
+    [setBluetoothData, setUnRecordedData, recordingRef]
   );
 
-  return { bluetoothData, onNewDataReceived };
+  const clearData = useCallback(() => {
+    setBluetoothData(EMPTY_STATE);
+  }, [setBluetoothData]);
+
+  return { bluetoothData, onNewDataReceived, clearData };
 };

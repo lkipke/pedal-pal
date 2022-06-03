@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../sequelize';
-import ExerciseData from './ExerciseData';
+import MetricData from './MetricData';
 
 class Session extends Model {
   declare id: string;
@@ -24,7 +24,7 @@ Session.init(
   { sequelize }
 );
 
-Session.hasMany(ExerciseData);
-ExerciseData.belongsTo(Session);
+Session.hasMany(MetricData);
+MetricData.belongsTo(Session);
 
 export default Session;

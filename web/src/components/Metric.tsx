@@ -1,4 +1,4 @@
-import { Card, Heading, Pane, Strong, Text } from 'evergreen-ui';
+import { Card, Heading, Pane } from 'evergreen-ui';
 import React, { useEffect, useState } from 'react';
 import { Line, LineChart, XAxis, YAxis } from 'recharts';
 
@@ -25,18 +25,24 @@ const convertUtcToReadable = (utc: number) => {
   return date.toLocaleTimeString();
 };
 
-const round = (toRound: number) => Math.round(toRound * 100) / 100;
+const round2Places = (toRound: number) => Math.round(toRound * 100) / 100;
 
 const Metric: React.FC<Props> = ({ data, name, chart }) => {
   let [currentTotal, setCurrentTotal] = useState<number>(0);
+  let [max, setMax] = useState<number>(0);
 
   useEffect(() => {
-    if (data.length) {
-      setCurrentTotal((prev) => prev + data[data.length - 1].value);
+    if (!data.length) {
+      setCurrentTotal(0);
+      setMax(0);
+      return;
     }
-  }, [data.length]);
 
-  let average = round(currentTotal / data.length) || null;
+    setCurrentTotal((prev) => prev + data[data.length - 1].value);
+    setMax((prev) => Math.max(prev, data[data.length - 1].value));
+  }, [data]);
+
+  let average = Math.round(currentTotal / data.length) || null;
   let current = data[data.length - 1];
   return (
     <Card padding={25} margin={10} border={true}>
@@ -44,12 +50,29 @@ const Metric: React.FC<Props> = ({ data, name, chart }) => {
         {name}
       </Heading>
       {average && (
-        <Pane float='right' display='flex' flexDirection='column'>
-          <Heading size={900}>{average}</Heading>
-          <Heading size={600}>average</Heading>
+        <Pane float='right' display='flex'>
+          <Pane display='flex' flexDirection='column'>
+            <Heading size={900}>{average}</Heading>
+            <Heading size={500}>average</Heading>
+          </Pane>
+          <Pane
+            borderLeft
+            marginLeft={10}
+            paddingLeft={10}
+            display='flex'
+            flexDirection='column'
+          >
+            <Heading size={900}>{max}</Heading>
+            <Heading size={500}>max</Heading>
+          </Pane>
         </Pane>
       )}
-      <Pane display='flex' alignItems='center' width='100%' flexDirection='column'>
+      <Pane
+        display='flex'
+        alignItems='center'
+        width='100%'
+        flexDirection='column'
+      >
         {current && <Heading style={{ fontSize: 75 }}>{current.value}</Heading>}
       </Pane>
       <Pane marginTop={25}>
