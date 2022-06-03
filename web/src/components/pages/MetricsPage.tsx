@@ -1,4 +1,12 @@
-import { Button, Pane, Switch, Text } from 'evergreen-ui';
+import {
+  Button,
+  Pane,
+  PauseIcon,
+  PlayIcon,
+  Strong,
+  Switch,
+  Text,
+} from 'evergreen-ui';
 import React, {
   ChangeEventHandler,
   useCallback,
@@ -7,14 +15,25 @@ import React, {
 } from 'react';
 import { getLastSession } from '../../api';
 import {
-  BluetoothData,
   connectToBluetooth,
   connectToFakeData,
   disconnectAll,
+  MetricName,
+  pause,
+  play,
 } from '../../api/bluetooth';
 import { Session, User } from '../../api/types';
+import { useBluetoothData } from '../../hooks/useBluetoothData';
 import Metric from '../Metric';
 import SessionInput from '../SessionInput';
+
+const METRIC_KEY_TO_NAME: Record<MetricName, string> = {
+  speed: 'speed',
+  cadence: 'cadence',
+  power: 'power',
+  heartRate: 'heart rate',
+  time: 'time',
+};
 
 interface Props {
   user: User;
@@ -25,13 +44,12 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
   const [useFakeData, setUseFakeData] = useState<boolean>(false);
   const [dataSourceConnected, setDataSourceConnected] =
     useState<boolean>(false);
+  const [dataSourceName, setDataSourceName] = useState<string>('');
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const { bluetoothData, onNewDataReceived } = useBluetoothData();
 
   useEffect(() => {
     getLastSession().then(setCurrentSession);
-  }, []);
-
-  const onNewDataReceived = useCallback((data: BluetoothData) => {
-    console.log(data);
   }, []);
 
   const disconnect = useCallback(() => {
@@ -46,6 +64,13 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
 
     let result = await connectToDatasource(onNewDataReceived);
     setDataSourceConnected(result.success);
+
+    if (result.success) {
+      setIsPaused(false);
+      setDataSourceName(result.name);
+    } else {
+      setIsPaused(true);
+    }
   }, [setDataSourceConnected, useFakeData, onNewDataReceived]);
 
   const onToggleDataSourceClicked: ChangeEventHandler<HTMLInputElement> =
@@ -57,17 +82,47 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
       [setUseFakeData, disconnect]
     );
 
+  const onTogglePauseClicked = useCallback(() => {
+    if (isPaused) {
+      play();
+    } else {
+      pause();
+    }
+
+    setIsPaused(!isPaused);
+  }, [isPaused, setIsPaused]);
+
   return (
     <>
       <Pane marginLeft={25} float='left' display='flex' flexDirection='column'>
         {dataSourceConnected ? (
-          <Button onClick={disconnect}>Disconnect</Button>
+          <>
+            <Strong size={300}>{dataSourceName}</Strong>
+            <Button marginTop={5} onClick={disconnect}>
+              Disconnect
+            </Button>
+          </>
         ) : (
           <Button onClick={connect}>Connect</Button>
         )}
+        <Button
+          marginTop={10}
+          onClick={onTogglePauseClicked}
+          disabled={!dataSourceConnected}
+        >
+          {isPaused ? <PlayIcon /> : <PauseIcon />}
+        </Button>
         <Pane marginTop={10} display='flex' alignItems='center'>
-          <Switch marginRight={5} checked={!useFakeData} onChange={onToggleDataSourceClicked} />
+          <Switch
+            marginRight={5}
+            checked={!useFakeData}
+            onChange={onToggleDataSourceClicked}
+          />
           <Text>Bluetooth</Text>
+        </Pane>
+        <Pane marginTop={10} display='flex' alignItems='center'>
+          <Switch marginRight={5} checked={true} />
+          <Text>Record</Text>
         </Pane>
       </Pane>
       <Pane
@@ -80,10 +135,16 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           setCurrentSession={setCurrentSession}
           currentSessionName={currentSession?.name}
         />
-        <Pane marginTop={50} display='flex' flexWrap="wrap">
-          <Metric />
-          <Metric />
-          <Metric />
+        <Pane marginTop={50} marginLeft={50} display='flex' flexWrap='wrap'>
+          {(Object.keys(bluetoothData) as MetricName[])
+            .filter((key) => key !== 'time')
+            .map((key) => (
+              <Metric
+                key={key}
+                name={METRIC_KEY_TO_NAME[key]}
+                data={bluetoothData[key]}
+              />
+            ))}
         </Pane>
       </Pane>
     </>

@@ -1,4 +1,4 @@
-import { Button, Pane, Popover, Text, TextInput } from 'evergreen-ui';
+import { Button, Heading, Pane, Popover, Text, TextInput } from 'evergreen-ui';
 import React, { ChangeEvent, useCallback, useState } from 'react';
 import { createSession } from '../api';
 import { Session } from '../api/types';
@@ -23,10 +23,10 @@ const SessionInput: React.FC<Props> = ({
   }, [name, now, setCurrentSession]);
 
   return (
-    <Pane display='flex'>
-      <Text margin={10}>
+    <Pane display='flex' flexDirection='column' alignItems='center'>
+      <Heading size={700} margin={10}>
         {`Current session: ${currentSessionName || 'None found'}`}
-      </Text>
+      </Heading>
       <Popover
         minHeight={46}
         content={({ close }) => (
@@ -53,7 +53,7 @@ const SessionInput: React.FC<Props> = ({
           </Pane>
         )}
       >
-        <Button>New session</Button>
+        <Button width={100}>New session</Button>
       </Popover>
     </Pane>
   );
