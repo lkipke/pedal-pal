@@ -21,7 +21,7 @@ const DEFAULT_CHART_HEIGHT = 200;
 
 const convertUtcToReadable = (utc: number) => {
   let date = new Date(0);
-  date.setUTCSeconds(utc);
+  date.setUTCMilliseconds(utc);
   return date.toLocaleTimeString();
 };
 

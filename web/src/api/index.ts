@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import merge from 'lodash.merge';
+import { BluetoothData } from './bluetooth';
 import { Session, User } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL!;
@@ -103,6 +104,28 @@ export const renameSession = async (sessionName: string) => {
   return response.ok ? await response.json() : null;
 };
 
-export const uploadData = async () => {};
+export const uploadMetric = async (metricData: BluetoothData[], sessionId: string) => {
+  let uploadData = metricData.map(data => ({
+    ...data,
+    timestamp: data.time,
+    sessionId
+  }));
+
+  const response = await fetchWithAuth(`${API_BASE_URL}/metric`, {
+    method: 'POST',
+    body: JSON.stringify(uploadData),
+  });
+
+  if (!response.ok) {
+    let message = await response.json();
+    return {
+      success: false,
+      ...message
+    }
+  }
+
+  return { success: true };
+};
+
 export const getSessionById = async () => {};
 export const getAllSessions = async () => {};

@@ -17,7 +17,7 @@ let bluetoothCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
 let fakeInterval: NodeJS.Timer | null = null;
 let fakeIntervalListener: OnNewData | null = null;
 
-const getEpoch = () => Math.round(Date.now() / 1000);
+const getEpoch = () => Date.now()
 
 export const connectToFakeData = async (
   onNewData: OnNewData

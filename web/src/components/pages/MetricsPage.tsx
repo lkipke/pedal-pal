@@ -47,7 +47,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
   const [dataSourceName, setDataSourceName] = useState<string>('');
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(isRecording);
+  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(isRecording, currentSession?.id);
 
   useEffect(() => {
     getLastSession().then(setCurrentSession);
