@@ -1,10 +1,10 @@
-import { Pane, Text, Button, Popover } from 'evergreen-ui';
-import React, { useCallback, useContext, useState } from 'react';
+import { Pane, Button, Popover } from 'evergreen-ui';
+import React, { useCallback, useContext } from 'react';
 import { logout } from '../api';
 import { User } from '../api/types';
 import { UserContext } from '../providers/UserContext';
-import LoginPage from './LoginPage';
-import MetricsPage from './MetricsPage';
+import LoginPage from './pages/LoginPage';
+import MetricsPage from './pages/MetricsPage';
 
 interface UserMenuProps {
   user: User;
@@ -16,7 +16,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const onLogoutClicked = useCallback(async () => {
     await logout();
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   return (
     <Pane margin={25}>
@@ -24,6 +24,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
       trigger='hover'
       minWidth={78}
       minHeight={32}
+      shouldCloseOnExternalClick={true}
       content={
         <Pane
           width={78}

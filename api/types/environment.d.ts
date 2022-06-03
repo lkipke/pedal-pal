@@ -11,6 +11,7 @@ declare global {
       NODE_DOCKER_PORT: string;
       CLIENT_ORIGIN_ALLOW_LIST: string;
       FORCE_DB_RESET: string;
+      APP_USERS: string;
     }
   }
 

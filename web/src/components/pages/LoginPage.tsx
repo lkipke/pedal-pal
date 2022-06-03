@@ -1,7 +1,7 @@
 import React, { ChangeEvent, KeyboardEventHandler, useCallback, useContext, useState } from "react";
 import { Button, Pane, Text, TextInput } from "evergreen-ui";
-import { login } from "../api";
-import { UserContext } from "../providers/UserContext";
+import { login } from "../../api";
+import { UserContext } from "../../providers/UserContext";
 
 type OnChangeEvent = ChangeEvent<HTMLInputElement>;
 

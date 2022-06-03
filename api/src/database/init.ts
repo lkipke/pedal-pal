@@ -2,6 +2,14 @@ import sequelize from './sequelize';
 import User from './models/User';
 import { generateHashFromPassword } from '../helpers';
 
+interface UserFromEnv {
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+}
+
+
 /**
  * This will update the tables if any of the schema was wrong.
  * If FORCE_DB_RESET is true, then it will drop the tables and
@@ -13,18 +21,21 @@ export default async () => {
   let forceReset = process.env.FORCE_DB_RESET === 'true';
   await sequelize.sync({ force: forceReset });
 
-  let user = await User.findOne({
-    where: {
-      username: process.env.OWNER_USERNAME,
-    },
+  let usersToSeed: UserFromEnv[] = JSON.parse(process.env.APP_USERS);
+  console.log("USERS TO SEED", usersToSeed);
+  usersToSeed.map(async (user) => {
+    let existingUser = await User.findOne({
+      where: {
+        username: user.username
+      },
+    });
+
+    if (!existingUser) {
+      User.create({
+        ...user,
+        password: generateHashFromPassword(user.password),
+      });
+    }
   });
 
-  if (!user) {
-    User.create({
-      firstName: process.env.OWNER_FIRST_NAME,
-      lastName: process.env.OWNER_LAST_NAME,
-      username: process.env.OWNER_USERNAME,
-      password: generateHashFromPassword(process.env.OWNER_PASSWORD!),
-    });
-  }
 };

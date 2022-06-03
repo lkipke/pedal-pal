@@ -1,14 +1,14 @@
 import { Button, Pane, Popover, Text, TextInput } from 'evergreen-ui';
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { createSession, getLastSession } from '../api';
-import { Session, User } from '../api/types';
+import React, { ChangeEvent, useCallback, useState } from 'react';
+import { createSession } from '../api';
+import { Session } from '../api/types';
 
-interface SessionInputProps {
+interface Props {
   currentSessionName?: string;
   setCurrentSession: React.Dispatch<React.SetStateAction<Session | null>>;
 }
 
-const SessionInput: React.FC<SessionInputProps> = ({
+const SessionInput: React.FC<Props> = ({
   currentSessionName,
   setCurrentSession,
 }) => {
@@ -20,23 +20,17 @@ const SessionInput: React.FC<SessionInputProps> = ({
   const createNewSession = useCallback(async () => {
     let newSession = await createSession(name || now);
     setCurrentSession(newSession);
-  }, []);
+  }, [name, now, setCurrentSession]);
 
   return (
-    <>
-      {currentSessionName ? (
-        <Text>Current session: {currentSessionName}</Text>
-      ) : (
-        <Text>No current session</Text>
-      )}
+    <Pane display='flex'>
+      <Text margin={10}>
+        {`Current session: ${currentSessionName || 'None found'}`}
+      </Text>
       <Popover
         minHeight={46}
         content={({ close }) => (
-          <Pane
-            display='flex'
-            alignItems='center'
-            marginTop={7}
-          >
+          <Pane display='flex' alignItems='center' marginTop={7}>
             <Text marginLeft={10} marginRight={10}>
               Name:
             </Text>
@@ -61,34 +55,8 @@ const SessionInput: React.FC<SessionInputProps> = ({
       >
         <Button>New session</Button>
       </Popover>
-    </>
-  );
-};
-
-interface Props {
-  user: User;
-}
-
-const MetricsPage: React.FC<Props> = ({ user }) => {
-  const [currentSession, setCurrentSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    getLastSession().then(setCurrentSession);
-  }, []);
-
-  return (
-    <Pane
-      display='flex'
-      justifyContent='center'
-      alignItems='center'
-      flexDirection='column'
-    >
-      <SessionInput
-        setCurrentSession={setCurrentSession}
-        currentSessionName={currentSession?.name}
-      />
     </Pane>
   );
 };
 
-export default MetricsPage;
+export default SessionInput;
