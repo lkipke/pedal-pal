@@ -6,8 +6,10 @@ import {
   Strong,
   Switch,
   Text,
+  TextInputField,
 } from 'evergreen-ui';
 import React, {
+  ChangeEvent,
   ChangeEventHandler,
   useCallback,
   useEffect,
@@ -39,6 +41,22 @@ interface Props {
   user: User;
 }
 
+interface SliderProps {
+  value: number;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+}
+
+const Slider: React.FC<SliderProps> = ({ onChange, value }) => (
+  <input
+    type='range'
+    min='25'
+    max='800'
+    step='25'
+    onChange={onChange}
+    value={value}
+  />
+);
+
 const MetricsPage: React.FC<Props> = ({ user }) => {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [useFakeData, setUseFakeData] = useState<boolean>(false);
@@ -47,7 +65,13 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
   const [dataSourceName, setDataSourceName] = useState<string>('');
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(isRecording, currentSession?.id);
+  const [graphWidth, setGraphWidth] = useState<number>(500);
+  const [graphHeight, setGraphHeight] = useState<number>(200);
+
+  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(
+    isRecording,
+    currentSession?.id
+  );
 
   useEffect(() => {
     getLastSession().then(setCurrentSession);
@@ -55,7 +79,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
 
   useEffect(() => {
     clearData();
-  }, [currentSession]);
+  }, [currentSession, clearData]);
 
   const disconnect = useCallback(() => {
     disconnectAll();
@@ -141,6 +165,30 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           />
           <Text>Record</Text>
         </Pane>
+        <Pane display='flex'>
+          <Text>Graph width</Text>
+          <Strong size={100} marginLeft={15}>
+            {graphWidth}
+          </Strong>
+        </Pane>
+        <Slider
+          value={graphWidth}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setGraphWidth(parseInt(e.target.value))
+          }
+        />
+        <Pane display='flex'>
+          <Text>Graph height</Text>
+          <Strong size={100} marginLeft={15}>
+            {graphHeight}
+          </Strong>
+        </Pane>
+        <Slider
+          value={graphHeight}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setGraphHeight(parseInt(e.target.value))
+          }
+        />
       </Pane>
       <Pane
         display='flex'
@@ -160,6 +208,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
                 key={key}
                 name={METRIC_KEY_TO_NAME[key]}
                 data={bluetoothData[key]}
+                chart={{ width: graphWidth, height: graphHeight }}
               />
             ))}
         </Pane>
