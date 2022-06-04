@@ -48,8 +48,6 @@ router.post('/', async (req, res, next) => {
     })
     .filter((data) => !!data) as Record<string, number>[];
 
-  console.log('inserting data into the database', dataToInsert);
-
   try {
     await MetricData.bulkCreate(dataToInsert);
   } catch (e) {

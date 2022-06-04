@@ -84,6 +84,16 @@ export const getLastSession = async (): Promise<Session | null> => {
   return response.ok ? await response.json() : null;
 };
 
+interface SessionById {
+  session: Session;
+  data: BluetoothData[];
+}
+
+export const getSessionById = async (sessionId: string): Promise<Session | null> => {
+  const response = await fetchWithAuth(`${API_BASE_URL}/session/${sessionId}`);
+  return response.ok ? await response.json() : null;
+};
+
 export const createSession = async (sessionName: string) => {
   const response = await fetchWithAuth(`${API_BASE_URL}/session/create`, {
     method: 'POST',
@@ -127,5 +137,4 @@ export const uploadMetric = async (metricData: BluetoothData[], sessionId: strin
   return { success: true };
 };
 
-export const getSessionById = async () => {};
 export const getAllSessions = async () => {};

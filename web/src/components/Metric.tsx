@@ -45,35 +45,53 @@ const Metric: React.FC<Props> = ({ data, name, chart }) => {
   let average = Math.round(currentTotal / data.length) || null;
   let current = data[data.length - 1];
   return (
-    <Card padding={25} margin={10} border={true}>
-      <Heading size={900} float='left'>
-        {name}
-      </Heading>
-      {average && (
-        <Pane float='right' display='flex'>
-          <Pane display='flex' flexDirection='column'>
-            <Heading size={900}>{average}</Heading>
-            <Heading size={500}>average</Heading>
-          </Pane>
-          <Pane
-            borderLeft
-            marginLeft={10}
-            paddingLeft={10}
-            display='flex'
-            flexDirection='column'
-          >
-            <Heading size={900}>{max}</Heading>
-            <Heading size={500}>max</Heading>
-          </Pane>
+    <Card
+      paddingLeft={15}
+      paddingTop={15}
+      paddingRight={15}
+      margin={10}
+      border={true}
+      display='flex'
+      flexDirection='column'
+      alignItems='center'
+    >
+      <Pane display='flex' position='relative' width='100%' left={0}>
+        <Pane display='flex' flexDirection='column'>
+          <Heading width='215px' size={900}>{name}</Heading>
+          {average && (
+            <Pane display='flex'>
+              <Pane display='flex' flexDirection='column'>
+                <Heading size={500}>avg</Heading>
+                <Heading size={900}>{average}</Heading>
+              </Pane>
+              <Pane
+                borderLeft
+                marginLeft={10}
+                paddingLeft={10}
+                display='flex'
+                flexDirection='column'
+              >
+                <Heading size={500}>max</Heading>
+                <Heading size={900}>{max}</Heading>
+              </Pane>
+            </Pane>
+          )}
         </Pane>
-      )}
-      <Pane
-        display='flex'
-        alignItems='center'
-        width='100%'
-        flexDirection='column'
-      >
-        {current && <Heading style={{ fontSize: 75 }}>{current.value}</Heading>}
+        <Pane
+          display='flex'
+          flexDirection='column'
+          textAlign='right'
+          width='100%'
+        >
+          {current && (
+            <Heading
+              float='right'
+              style={{ fontSize: 75, lineHeight: '100px' }}
+            >
+              {current.value}
+            </Heading>
+          )}
+        </Pane>
       </Pane>
       <Pane marginTop={25}>
         <LineChart

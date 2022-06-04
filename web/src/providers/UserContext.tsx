@@ -19,11 +19,11 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const refreshUser = useCallback(async () => {
     let userResponse = await getUserFromStoredCredentials();
     setUser(userResponse);
-  }, [user]);
+  }, [setUser]);
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   return (
     <UserContext.Provider value={{ user, setUser, refreshUser }}>

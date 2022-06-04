@@ -23,7 +23,7 @@ const SessionInput: React.FC<Props> = ({
   }, [name, now, setCurrentSession]);
 
   return (
-    <Pane display='flex' flexDirection='column' alignItems='center'>
+    <Pane display='flex' alignItems='center'>
       <Heading size={700} margin={10}>
         {`Current session: ${currentSessionName || 'None found'}`}
       </Heading>

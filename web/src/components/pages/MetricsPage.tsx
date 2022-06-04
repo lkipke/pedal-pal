@@ -66,7 +66,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [graphWidth, setGraphWidth] = useState<number>(500);
-  const [graphHeight, setGraphHeight] = useState<number>(200);
+  const [graphHeight, setGraphHeight] = useState<number>(175);
 
   const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(
     isRecording,
@@ -74,7 +74,10 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
   );
 
   useEffect(() => {
-    getLastSession().then(setCurrentSession);
+    getLastSession().then((session) => {
+      setCurrentSession(session);
+      
+    });
   }, []);
 
   useEffect(() => {
@@ -165,7 +168,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           />
           <Text>Record</Text>
         </Pane>
-        <Pane display='flex'>
+        <Pane marginTop={10} display='flex'>
           <Text>Graph width</Text>
           <Strong size={100} marginLeft={15}>
             {graphWidth}
@@ -177,7 +180,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
             setGraphWidth(parseInt(e.target.value))
           }
         />
-        <Pane display='flex'>
+        <Pane marginTop={5} display='flex'>
           <Text>Graph height</Text>
           <Strong size={100} marginLeft={15}>
             {graphHeight}
@@ -200,7 +203,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
           setCurrentSession={setCurrentSession}
           currentSessionName={currentSession?.name}
         />
-        <Pane marginTop={50} marginLeft={50} display='flex' flexWrap='wrap'>
+        <Pane marginTop={10} marginLeft={50} display='flex' flexWrap='wrap'>
           {(Object.keys(bluetoothData) as MetricName[])
             .filter((key) => key !== 'time')
             .map((key) => (
