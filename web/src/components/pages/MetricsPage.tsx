@@ -6,7 +6,6 @@ import {
   Strong,
   Switch,
   Text,
-  TextInputField,
 } from 'evergreen-ui';
 import React, {
   ChangeEvent,
@@ -15,7 +14,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { getLastSession } from '../../api';
+import { getLastSession, getSessionById } from '../../api';
 import {
   connectToBluetooth,
   connectToFakeData,
@@ -41,22 +40,6 @@ interface Props {
   user: User;
 }
 
-interface SliderProps {
-  value: number;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-}
-
-const Slider: React.FC<SliderProps> = ({ onChange, value }) => (
-  <input
-    type='range'
-    min='25'
-    max='800'
-    step='25'
-    onChange={onChange}
-    value={value}
-  />
-);
-
 const MetricsPage: React.FC<Props> = ({ user }) => {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [useFakeData, setUseFakeData] = useState<boolean>(false);
@@ -75,8 +58,9 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
 
   useEffect(() => {
     getLastSession().then((session) => {
+      if
       setCurrentSession(session);
-      
+      getSessionById(session?.id)
     });
   }, []);
 

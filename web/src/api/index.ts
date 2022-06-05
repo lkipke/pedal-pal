@@ -89,7 +89,7 @@ interface SessionById {
   data: BluetoothData[];
 }
 
-export const getSessionById = async (sessionId: string): Promise<Session | null> => {
+export const getSessionById = async (sessionId: string): Promise<SessionById | null> => {
   const response = await fetchWithAuth(`${API_BASE_URL}/session/${sessionId}`);
   return response.ok ? await response.json() : null;
 };
