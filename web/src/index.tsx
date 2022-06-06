@@ -1,9 +1,12 @@
+import './wdyr';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 import UserProvider from './providers/UserContext';
+import DataSourceContextProvider from './providers/DataSourceContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +14,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <UserProvider>
-      <App />
+      <DataSourceContextProvider>
+        <App />
+      </DataSourceContextProvider>
     </UserProvider>
   </React.StrictMode>
 );

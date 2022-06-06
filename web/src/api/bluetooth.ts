@@ -1,23 +1,26 @@
-type OnNewData = (data: BluetoothData) => void;
+export type OnNewData = (data: BluetoothData) => void;
 type Result =
   | { success: true; name: string }
   | { success: false; error: string };
 
-export interface BluetoothData {
-  speed: number;
-  cadence: number;
-  power: number;
-  heartRate: number;
-  time: number;
-}
-export type MetricName = keyof BluetoothData;
+export type MetricName = 'speed' | 'cadence' | 'power' | 'heartRate' | 'time';
+export type BluetoothData = Record<MetricName, number[]>;
 
 let bluetoothDevice: BluetoothDevice | null = null;
 let bluetoothCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
 let fakeInterval: NodeJS.Timer | null = null;
 let fakeIntervalListener: OnNewData | null = null;
 
-const getEpoch = () => Date.now()
+const getEpoch = () => Date.now();
+
+export const connectToDataSource = async (
+  onNewData: OnNewData,
+  useFakeDataSource = false
+) => {
+  return useFakeDataSource
+    ? connectToFakeData(onNewData)
+    : connectToBluetooth(onNewData);
+};
 
 export const connectToFakeData = async (
   onNewData: OnNewData
@@ -28,11 +31,11 @@ export const connectToFakeData = async (
   const rnd = (max: number) => Math.floor(Math.random() * Math.floor(max));
   fakeInterval = setInterval(() => {
     onNewData({
-      speed: rnd(20),
-      cadence: rnd(100),
-      power: rnd(400),
-      heartRate: rnd(180),
-      time: getEpoch(),
+      speed: [rnd(20)],
+      cadence: [rnd(100)],
+      power: [rnd(400)],
+      heartRate: [rnd(180)],
+      time: [getEpoch()],
     });
   }, 200);
 
@@ -70,11 +73,11 @@ export const connectToBluetooth = async (
         let flags = value.getUint16(0, true).toString(2);
 
         onNewData({
-          speed: value.getUint16(2, true) / 100,
-          cadence: value.getUint16(4, true) / 2,
-          power: value.getInt16(6, true),
-          heartRate: value.getUint8(8),
-          time: getEpoch(),
+          speed: [value.getUint16(2, true) / 100],
+          cadence: [value.getUint16(4, true) / 2],
+          power: [value.getInt16(6, true)],
+          heartRate: [value.getUint8(8)],
+          time: [getEpoch()],
         });
       }
     );

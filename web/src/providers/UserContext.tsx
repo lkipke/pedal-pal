@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getUserFromStoredCredentials } from '../api';
 import { User } from '../api/types';
 
@@ -25,11 +25,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     refreshUser();
   }, [refreshUser]);
 
-  return (
-    <UserContext.Provider value={{ user, setUser, refreshUser }}>
-      {children}
-    </UserContext.Provider>
+  const store = useMemo(
+    () => ({ user, setUser, refreshUser }),
+    [user, setUser, refreshUser]
   );
+
+  return <UserContext.Provider value={store}>{children}</UserContext.Provider>;
 };
 
 export default UserProvider;

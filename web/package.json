@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@types/recharts": "^1.8.23",
-    "@types/web-bluetooth": "^0.0.14"
+    "@types/web-bluetooth": "^0.0.14",
+    "@welldone-software/why-did-you-render": "^7.0.1"
   }
 }

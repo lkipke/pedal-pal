@@ -9,24 +9,19 @@ import {
 } from 'evergreen-ui';
 import React, {
   ChangeEvent,
-  ChangeEventHandler,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from 'react';
 import { getLastSession, getSessionById } from '../../api';
-import {
-  connectToBluetooth,
-  connectToFakeData,
-  disconnectAll,
-  MetricName,
-  pause,
-  play,
-} from '../../api/bluetooth';
+import { MetricName, pause, play } from '../../api/bluetooth';
 import { Session, User } from '../../api/types';
 import { useBluetoothData } from '../../hooks/useBluetoothData';
+import { DataSourceContext } from '../../providers/DataSourceContext';
 import Metric from '../Metric';
 import SessionInput from '../SessionInput';
+import Slider from '../Slider';
 
 const METRIC_KEY_TO_NAME: Record<MetricName, string> = {
   speed: 'speed',
@@ -37,124 +32,91 @@ const METRIC_KEY_TO_NAME: Record<MetricName, string> = {
 };
 
 interface Props {
-  user: User;
+  // user: User;
 }
 
-const MetricsPage: React.FC<Props> = ({ user }) => {
+const MetricsPage: React.FC<Props> = () => {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  const [useFakeData, setUseFakeData] = useState<boolean>(false);
-  const [dataSourceConnected, setDataSourceConnected] =
-    useState<boolean>(false);
-  const [dataSourceName, setDataSourceName] = useState<string>('');
-  const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [isRecording, setIsRecording] = useState<boolean>(false);
   const [graphWidth, setGraphWidth] = useState<number>(500);
   const [graphHeight, setGraphHeight] = useState<number>(175);
 
-  const { bluetoothData, onNewDataReceived, clearData } = useBluetoothData(
-    isRecording,
+  const { set, toggle, connect, disconnect, ...dataSource } =
+    useContext(DataSourceContext);
+
+  const { bluetoothData, appendData, clearData } = useBluetoothData(
+    dataSource.isRecording,
     currentSession?.id
   );
 
   useEffect(() => {
-    getLastSession().then((session) => {
-      if
-      setCurrentSession(session);
-      getSessionById(session?.id)
-    });
-  }, []);
+    if (!currentSession) {
+      console.log("*** getting new session");
+      getLastSession().then((session) => {
+        setCurrentSession(session);
+        if (session) {
+          getSessionById(session.id);
+        }
+      });
+    }
+  }, [currentSession]);
 
   useEffect(() => {
     clearData();
   }, [currentSession, clearData]);
 
-  const disconnect = useCallback(() => {
-    disconnectAll();
-    setDataSourceConnected(false);
-  }, [setDataSourceConnected]);
-
-  const connect = useCallback(async () => {
-    let connectToDatasource = useFakeData
-      ? connectToFakeData
-      : connectToBluetooth;
-
-    let result = await connectToDatasource(onNewDataReceived);
-    setDataSourceConnected(result.success);
-
-    if (result.success) {
-      setIsPaused(false);
-      setDataSourceName(result.name);
-    } else {
-      setIsPaused(true);
-    }
-  }, [setDataSourceConnected, useFakeData, onNewDataReceived]);
-
-  const onToggleDataSourceClicked: ChangeEventHandler<HTMLInputElement> =
-    useCallback(
-      (event) => {
-        setUseFakeData(!event.target.checked);
-        disconnect();
-      },
-      [setUseFakeData, disconnect]
-    );
-
-  const onToggleRecordClicked: ChangeEventHandler<HTMLInputElement> =
-    useCallback(
-      (event) => {
-        setIsRecording(event.target.checked);
-      },
-      [setIsRecording]
-    );
-
-  const onTogglePauseClicked = useCallback(() => {
-    if (isPaused) {
+  const onPlayPauseToggle = useCallback(() => {
+    if (dataSource.isPaused) {
       play();
     } else {
       pause();
     }
-
-    setIsPaused(!isPaused);
-  }, [isPaused, setIsPaused]);
+    toggle('isPaused');
+  }, [dataSource.isPaused, toggle]);
 
   return (
     <>
       <Pane marginLeft={25} float='left' display='flex' flexDirection='column'>
-        {dataSourceConnected ? (
+        {dataSource.isConnected ? (
           <>
-            <Strong size={300}>{dataSourceName}</Strong>
+            <Strong size={300}>{dataSource.name}</Strong>
             <Button marginTop={5} onClick={disconnect}>
               Disconnect
             </Button>
           </>
         ) : (
-          <Button onClick={connect}>Connect</Button>
+          <Button
+            disabled={!!currentSession}
+            onClick={() => connect(appendData)}
+          >
+            Connect
+          </Button>
         )}
         <Button
           marginTop={10}
-          onClick={onTogglePauseClicked}
-          disabled={!dataSourceConnected}
+          onClick={onPlayPauseToggle}
+          disabled={!dataSource.isConnected}
         >
-          {isPaused ? <PlayIcon /> : <PauseIcon />}
+          {dataSource.isPaused ? <PlayIcon /> : <PauseIcon />}
         </Button>
         <Pane marginTop={10} display='flex' alignItems='center'>
           <Switch
             marginRight={5}
-            checked={!useFakeData}
-            onChange={onToggleDataSourceClicked}
+            checked={dataSource.isFake}
+            onChange={() => toggle('isFake')}
           />
-          <Text>Bluetooth</Text>
+          <Text>Use fake data</Text>
         </Pane>
         <Pane marginTop={10} display='flex' alignItems='center'>
           <Switch
             marginRight={5}
-            checked={isRecording}
-            onChange={onToggleRecordClicked}
+            checked={dataSource.isRecording}
+            onChange={() => toggle('isRecording')}
           />
           <Text>Record</Text>
         </Pane>
         <Pane marginTop={10} display='flex'>
           <Text>Graph width</Text>
-          <Strong size={100} marginLeft={15}>
+          <Strong size='small' marginLeft={15}>
             {graphWidth}
           </Strong>
         </Pane>
@@ -166,7 +128,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
         />
         <Pane marginTop={5} display='flex'>
           <Text>Graph height</Text>
-          <Strong size={100} marginLeft={15}>
+          <Strong size='small' marginLeft={15}>
             {graphHeight}
           </Strong>
         </Pane>
@@ -203,5 +165,7 @@ const MetricsPage: React.FC<Props> = ({ user }) => {
     </>
   );
 };
+
+// (MetricsPage as any).whyDidYouRender = true;
 
 export default MetricsPage;
