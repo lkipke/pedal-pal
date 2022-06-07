@@ -77,5 +77,5 @@ export const useBluetoothData = (isRecording: boolean, sessionId?: string) => {
     setBluetoothData(EMPTY_STATE);
   }, [setBluetoothData]);
 
-  return { bluetoothData, onNewData, clearData };
+  return { bluetoothData, onNewData, clearData, recordCachedData: recordToDatabase };
 };

@@ -5,7 +5,7 @@ import { Session } from '../api/types';
 
 interface Props {
   currentSessionName?: string;
-  setCurrentSession: React.Dispatch<React.SetStateAction<Session | null>>;
+  setCurrentSession(session: Session, clearOldData?: boolean): void;
 }
 
 const SessionInput: React.FC<Props> = ({

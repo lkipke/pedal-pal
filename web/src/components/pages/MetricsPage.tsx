@@ -44,10 +44,8 @@ const MetricsPage: React.FC<Props> = () => {
   const { set, toggle, connect, disconnect, ...dataSource } =
     useContext(DataSourceContext);
 
-  const { bluetoothData, onNewData, clearData } = useBluetoothData(
-    dataSource.isRecording,
-    currentSession?.id
-  );
+  const { bluetoothData, onNewData, clearData, recordCachedData } =
+    useBluetoothData(dataSource.isRecording, currentSession?.id);
 
   useEffect(() => {
     if (!currentSession) {
@@ -64,18 +62,25 @@ const MetricsPage: React.FC<Props> = () => {
     }
   }, [currentSession]);
 
-  useEffect(() => {
-    clearData();
-  }, [currentSession, clearData]);
+  const setCurrentSessionWrapper = useCallback(
+    (session: Session, clearOldData = false) => {
+      if (clearOldData) {
+        clearData();
+      }
+      setCurrentSession(session);
+    },
+    [clearData]
+  );
 
   const onPlayPauseToggle = useCallback(() => {
     if (dataSource.isPaused) {
       play();
     } else {
+      recordCachedData();
       pause();
     }
     toggle('isPaused');
-  }, [dataSource.isPaused, toggle]);
+  }, [dataSource.isPaused, toggle, recordCachedData]);
 
   return (
     <>
@@ -83,7 +88,13 @@ const MetricsPage: React.FC<Props> = () => {
         {dataSource.isConnected ? (
           <>
             <Strong size={300}>{dataSource.name}</Strong>
-            <Button marginTop={5} onClick={disconnect}>
+            <Button
+              marginTop={5}
+              onClick={() => {
+                recordCachedData();
+                disconnect();
+              }}
+            >
               Disconnect
             </Button>
           </>
@@ -152,7 +163,10 @@ const MetricsPage: React.FC<Props> = () => {
           display='flex'
           flexDirection='column'
         >
-          <SessionsDialog />
+          <SessionsDialog
+            setCurrentSession={setCurrentSessionWrapper}
+            setCurrentData={onNewData}
+          />
         </Pane>
       </Pane>
       <Pane
@@ -162,7 +176,7 @@ const MetricsPage: React.FC<Props> = () => {
         flexDirection='column'
       >
         <SessionInput
-          setCurrentSession={setCurrentSession}
+          setCurrentSession={setCurrentSessionWrapper}
           currentSessionName={currentSession?.name}
         />
         <Pane marginTop={10} marginLeft={50} display='flex' flexWrap='wrap'>
