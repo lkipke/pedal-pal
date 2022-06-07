@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { connectToDataSource, disconnectAll, OnNewData } from '../api/bluetooth';
+import { connectToDataSource, disconnectAll, OnNewData } from '../utils/bluetooth';
 
 type State = {
   name?: string;

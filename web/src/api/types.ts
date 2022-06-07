@@ -14,4 +14,5 @@ export interface User extends BaseModel {
 export interface Session extends BaseModel {
   id: string;
   name: string;
+  UserId: string;
 }

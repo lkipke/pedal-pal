@@ -3,7 +3,7 @@ import sequelize from "../sequelize";
 
 class MetricData extends Model {
   declare id: string;
-  declare timestamp: string;
+  declare time: Date;
   declare heartRate: string;
   declare speed: string;
   declare cadence: string;
@@ -20,7 +20,7 @@ MetricData.init(
       allowNull: false,
       primaryKey: true,
     },
-    timestamp: {
+    time: {
         type: DataTypes.DATE,
         allowNull: false
     },

@@ -24,7 +24,7 @@ const SessionInput: React.FC<Props> = ({
 
   return (
     <Pane display='flex' alignItems='center'>
-      <Heading size={700} margin={10}>
+      <Heading size={700} margin={10} color={currentSessionName ? 'black' : 'red'}>
         {`Current session: ${currentSessionName || 'None found'}`}
       </Heading>
       <Popover

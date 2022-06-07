@@ -15,12 +15,13 @@ import React, {
   useState,
 } from 'react';
 import { getLastSession, getSessionById } from '../../api';
-import { MetricName, pause, play } from '../../api/bluetooth';
+import { MetricName, pause, play } from '../../utils/bluetooth';
 import { Session, User } from '../../api/types';
 import { useBluetoothData } from '../../hooks/useBluetoothData';
 import { DataSourceContext } from '../../providers/DataSourceContext';
 import Metric from '../Metric';
 import SessionInput from '../SessionInput';
+import SessionsDialog from '../SessionsDialog';
 import Slider from '../Slider';
 
 const METRIC_KEY_TO_NAME: Record<MetricName, string> = {
@@ -43,18 +44,21 @@ const MetricsPage: React.FC<Props> = () => {
   const { set, toggle, connect, disconnect, ...dataSource } =
     useContext(DataSourceContext);
 
-  const { bluetoothData, appendData, clearData } = useBluetoothData(
+  const { bluetoothData, onNewData, clearData } = useBluetoothData(
     dataSource.isRecording,
     currentSession?.id
   );
 
   useEffect(() => {
     if (!currentSession) {
-      console.log("*** getting new session");
       getLastSession().then((session) => {
         setCurrentSession(session);
         if (session) {
-          getSessionById(session.id);
+          getSessionById(session.id).then((data) => {
+            if (data) {
+              onNewData(data.data, true);
+            }
+          });
         }
       });
     }
@@ -84,10 +88,7 @@ const MetricsPage: React.FC<Props> = () => {
             </Button>
           </>
         ) : (
-          <Button
-            disabled={!!currentSession}
-            onClick={() => connect(appendData)}
-          >
+          <Button disabled={!currentSession} onClick={() => connect(onNewData)}>
             Connect
           </Button>
         )}
@@ -98,7 +99,13 @@ const MetricsPage: React.FC<Props> = () => {
         >
           {dataSource.isPaused ? <PlayIcon /> : <PauseIcon />}
         </Button>
-        <Pane marginTop={10} display='flex' alignItems='center'>
+        <Pane
+          borderTop
+          paddingTop={15}
+          marginTop={15}
+          display='flex'
+          alignItems='center'
+        >
           <Switch
             marginRight={5}
             checked={dataSource.isFake}
@@ -114,7 +121,7 @@ const MetricsPage: React.FC<Props> = () => {
           />
           <Text>Record</Text>
         </Pane>
-        <Pane marginTop={10} display='flex'>
+        <Pane borderTop paddingTop={15} marginTop={15} display='flex'>
           <Text>Graph width</Text>
           <Strong size='small' marginLeft={15}>
             {graphWidth}
@@ -138,6 +145,15 @@ const MetricsPage: React.FC<Props> = () => {
             setGraphHeight(parseInt(e.target.value))
           }
         />
+        <Pane
+          borderTop
+          marginTop={15}
+          paddingTop={15}
+          display='flex'
+          flexDirection='column'
+        >
+          <SessionsDialog />
+        </Pane>
       </Pane>
       <Pane
         display='flex'

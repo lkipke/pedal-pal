@@ -1,11 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { uploadMetric } from '../api';
-import { BluetoothData, MetricName } from '../api/bluetooth';
-import { DataPoint } from '../components/Metric';
+import { BluetoothData } from '../utils/bluetooth';
 
-export type BluetoothState = Record<MetricName, DataPoint[]>;
-
-const EMPTY_STATE: BluetoothState = {
+type State = Record<keyof BluetoothData, { time: number; value: number }[]>;
+const EMPTY_STATE: State = {
   speed: [],
   cadence: [],
   power: [],
@@ -14,55 +12,70 @@ const EMPTY_STATE: BluetoothState = {
 };
 
 export const useBluetoothData = (isRecording: boolean, sessionId?: string) => {
-  const [bluetoothData, setBluetoothData] = useState<BluetoothState>(EMPTY_STATE);
-  const [unRecordedData, setUnRecordedData] = useState<BluetoothData[]>([]);
+  const [bluetoothData, setBluetoothData] = useState<State>(EMPTY_STATE);
+  const [unrecordedData, setUnrecordedData] = useState<BluetoothData[]>([]);
   const recordingRef = useRef(isRecording);
 
   const recordToDatabase = useCallback(async () => {
     if (!sessionId) {
-      console.error("Unable to upload data without a session id");
+      console.error('Unable to upload data without a session id');
       return;
     }
 
-    setUnRecordedData([]);
-    await uploadMetric(unRecordedData, sessionId);
-  }, [unRecordedData, sessionId]);
+    setUnrecordedData([]);
+    await uploadMetric(unrecordedData, sessionId);
+  }, [unrecordedData, sessionId]);
 
   useEffect(() => {
     recordingRef.current = isRecording;
   }, [isRecording, recordingRef, recordToDatabase]);
 
   useEffect(() => {
-    if (!unRecordedData.length) return;
+    if (!unrecordedData.length) return;
 
-    let begin = unRecordedData[0].time;
-    let end = unRecordedData[unRecordedData.length - 1].time;
-    if (end - begin > 5) {
+    let begin = unrecordedData[0].time;
+    let end = unrecordedData[unrecordedData.length - 1].time;
+    if ((end - begin) / 1000 > 10) {
       recordToDatabase();
     }
-  }, [unRecordedData, recordToDatabase]);
+  }, [unrecordedData, recordToDatabase]);
 
-  const onNewDataReceived = useCallback(
-    (newData: BluetoothData) => {
-      const { time, speed, cadence, power, heartRate } = newData;
-      setBluetoothData((oldData) => ({
-        speed: [...oldData.speed, { time, value: speed }],
-        cadence: [...oldData.cadence, { time, value: cadence }],
-        power: [...oldData.power, { time, value: power }],
-        heartRate: [...oldData.heartRate, { time, value: heartRate }],
-        time: [...oldData.time, { time, value: time }],
+  const onNewData = useCallback(
+    (newData: BluetoothData[], disableRecord = false) => {
+      let newState = newData.reduce(
+        (agg, val) => {
+          return {
+            speed: [...agg.speed, { time: val.time, value: val.speed }],
+            cadence: [...agg.cadence, { time: val.time, value: val.cadence }],
+            power: [...agg.power, { time: val.time, value: val.power }],
+            heartRate: [
+              ...agg.heartRate,
+              { time: val.time, value: val.heartRate },
+            ],
+            time: [...agg.time, { time: val.time, value: val.time }],
+          };
+        },
+        { ...EMPTY_STATE }
+      );
+
+      setBluetoothData((oldState) => ({
+        speed: [...oldState.speed, ...newState.speed],
+        cadence: [...oldState.cadence, ...newState.cadence],
+        power: [...oldState.power, ...newState.power],
+        heartRate: [...oldState.heartRate, ...newState.heartRate],
+        time: [...oldState.time, ...newState.time],
       }));
 
-      if (recordingRef.current) {
-        setUnRecordedData((prev) => [...prev, newData]);
+      if (recordingRef.current && !disableRecord) {
+        setUnrecordedData((oldState) => [...oldState, ...newData]);
       }
     },
-    [setBluetoothData, setUnRecordedData, recordingRef]
+    [setBluetoothData, setUnrecordedData, recordingRef]
   );
 
   const clearData = useCallback(() => {
     setBluetoothData(EMPTY_STATE);
   }, [setBluetoothData]);
 
-  return { bluetoothData, onNewDataReceived, clearData };
+  return { bluetoothData, onNewData, clearData };
 };

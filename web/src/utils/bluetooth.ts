@@ -1,17 +1,15 @@
-export type OnNewData = (data: BluetoothData) => void;
+export type OnNewData = (data: BluetoothData[]) => void;
 type Result =
   | { success: true; name: string }
   | { success: false; error: string };
 
 export type MetricName = 'speed' | 'cadence' | 'power' | 'heartRate' | 'time';
-export type BluetoothData = Record<MetricName, number[]>;
+export type BluetoothData = Record<MetricName, number>;
 
 let bluetoothDevice: BluetoothDevice | null = null;
 let bluetoothCharacteristic: BluetoothRemoteGATTCharacteristic | null = null;
 let fakeInterval: NodeJS.Timer | null = null;
 let fakeIntervalListener: OnNewData | null = null;
-
-const getEpoch = () => Date.now();
 
 export const connectToDataSource = async (
   onNewData: OnNewData,
@@ -30,14 +28,16 @@ export const connectToFakeData = async (
 
   const rnd = (max: number) => Math.floor(Math.random() * Math.floor(max));
   fakeInterval = setInterval(() => {
-    onNewData({
-      speed: [rnd(20)],
-      cadence: [rnd(100)],
-      power: [rnd(400)],
-      heartRate: [rnd(180)],
-      time: [getEpoch()],
-    });
-  }, 200);
+    onNewData([
+      {
+        speed: rnd(20),
+        cadence: rnd(100),
+        power: rnd(400),
+        heartRate: rnd(180),
+        time: Date.now(),
+      },
+    ]);
+  }, 1000);
 
   return { success: true, name: 'Fake data' };
 };
@@ -66,19 +66,30 @@ export const connectToBluetooth = async (
     const service = await server.getPrimaryService(serviceId);
     bluetoothCharacteristic = await service.getCharacteristic(characteristicId);
 
+    let timeSinceLastUpdate = Date.now();
+
     bluetoothCharacteristic.addEventListener(
       'characteristicvaluechanged',
       (event) => {
+        let now = Date.now();
+
+        // throttle at 1 second
+        if ((now - timeSinceLastUpdate) / 1000 < 1) return;
+
+        timeSinceLastUpdate = now;
+
         let value = (event.target as any).value as DataView;
         let flags = value.getUint16(0, true).toString(2);
 
-        onNewData({
-          speed: [value.getUint16(2, true) / 100],
-          cadence: [value.getUint16(4, true) / 2],
-          power: [value.getInt16(6, true)],
-          heartRate: [value.getUint8(8)],
-          time: [getEpoch()],
-        });
+        onNewData([
+          {
+            speed: value.getUint16(2, true) / 100,
+            cadence: value.getUint16(4, true) / 2,
+            power: value.getInt16(6, true),
+            heartRate: value.getUint8(8),
+            time: now,
+          },
+        ]);
       }
     );
 

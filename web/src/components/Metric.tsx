@@ -28,6 +28,7 @@ const convertUtcToReadable = (utc: number) => {
 const round2Places = (toRound: number) => Math.round(toRound * 100) / 100;
 
 const Metric: React.FC<Props> = ({ data, name, chart }) => {
+  let [prevDataLength, setPrevDataLength] = useState(0);
   let [currentTotal, setCurrentTotal] = useState<number>(0);
   let [max, setMax] = useState<number>(0);
 
@@ -35,12 +36,17 @@ const Metric: React.FC<Props> = ({ data, name, chart }) => {
     if (!data.length) {
       setCurrentTotal(0);
       setMax(0);
+      setPrevDataLength(0);
       return;
     }
 
-    setCurrentTotal((prev) => prev + data[data.length - 1].value);
-    setMax((prev) => Math.max(prev, data[data.length - 1].value));
-  }, [data]);
+    let newData = data.slice(prevDataLength);
+    setCurrentTotal((prev) =>
+      newData.reduce((total, next) => total + next.value, prev)
+    );
+    setMax((prev) => Math.max(prev, ...newData.map((d) => d.value)));
+    setPrevDataLength(data.length);
+  }, [data, prevDataLength]);
 
   let average = Math.round(currentTotal / data.length) || null;
   let current = data[data.length - 1];
@@ -57,7 +63,9 @@ const Metric: React.FC<Props> = ({ data, name, chart }) => {
     >
       <Pane display='flex' position='relative' width='100%' left={0}>
         <Pane display='flex' flexDirection='column'>
-          <Heading width='215px' size={900}>{name}</Heading>
+          <Heading width='215px' size={900}>
+            {name}
+          </Heading>
           {average && (
             <Pane display='flex'>
               <Pane display='flex' flexDirection='column'>
