@@ -22,7 +22,7 @@ services:
       - '8080:8080'
     volumes:
       - ./api:/usr/src/app
-      # - ./api/node_modules:/usr/src/app/node_modules
+      - /usr/src/app/node_modules
     env_file: .env
     # use database-agnostic names in case we want to migrate database
     environment:
@@ -39,6 +39,31 @@ services:
       - frontend
       - backend
 
+  reverse_proxy:
+    depends_on:
+      - api
+    container_name: reverse_proxy
+    hostname: reverse_proxy
+    image: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx:/etc/nginx
+      # - ./certs:/etc/ssl/private
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+    networks:
+      - frontend
+      - backend
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+
   web:
     build: ./web
     environment:
@@ -47,7 +72,7 @@ services:
       - '3000:3000'
     volumes:
       - ./web:/usr/src/app
-      # - ./web/node_modules:/usr/src/app/node_modules
+      - /usr/src/app/node_modules
     depends_on:
       - api
     networks:

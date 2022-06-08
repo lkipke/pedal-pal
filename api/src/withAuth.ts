@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import User from './database/models/User';
 
+const ALLOWED_PATHS = ['/api/login', '/api/oauth_callback']
 function withAuth() {
   return async (req: Request, res: Response, next: NextFunction) => {
-    if (req.path === '/api/login') {
+    if (ALLOWED_PATHS.includes(req.path)) {
       return next();
     }
 

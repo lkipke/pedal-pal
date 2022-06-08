@@ -44,6 +44,10 @@ const createServer = () => {
     res.send('API: Hello World!');
   });
 
+  app.get('/api/oauth_callback', (req: Request, res: Response) => {
+    res.send('Hello World!');
+  });
+
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
   });

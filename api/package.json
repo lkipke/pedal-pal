@@ -5,9 +5,11 @@
     "author": "Levi Kipke",
     "license": "MIT",
     "scripts": {
-        "dev": "NODE_ENV=development concurrently \"tsc --watch\" \"nodemon dist/index.js\"",
-        "start": "node dist/index.js",
-        "build": "tsc"
+        "dev": "NODE_ENV=development concurrently yarn:build:dev yarn:serve:dev",
+        "build:dev": "tsc --watch",
+        "build:prod": "tsc",
+        "serve:dev": "nodemon dist/index.js",
+        "serve:prod": "node dist/index.js"
     },
     "dependencies": {
         "@types/sequelize": "^4.28.13",

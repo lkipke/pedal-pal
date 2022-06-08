@@ -18,17 +18,19 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     refreshUser();
   }, [refreshUser]);
 
+  const onConnectToFitbit = useCallback(async () => {
+
+  }, []);
+
   return (
     <Pane margin={25}>
       <Popover
         trigger='hover'
         minWidth={78}
-        minHeight={32}
         shouldCloseOnExternalClick={true}
         content={
           <Pane
-            width={78}
-            height={32}
+            padding={5}
             display='flex'
             alignItems='center'
             justifyContent='center'
@@ -36,6 +38,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
           >
             <Button color='red' onClick={onLogoutClicked}>
               Log out
+            </Button>
+            <Button marginTop={5} onClick={onConnectToFitbit}>
+              Connect to Fitbit
             </Button>
           </Pane>
         }
